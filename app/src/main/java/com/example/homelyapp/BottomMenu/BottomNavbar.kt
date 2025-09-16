@@ -1,5 +1,6 @@
 package com.example.homelyapp.BottomMenu
 
+import android.graphics.drawable.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AddCircle
@@ -15,47 +16,32 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.example.homelyapp.bottomNavItems
 
 @Composable
-fun BottomNavbar(){
+fun BottomNavbar(navController: NavHostController){
     var selectedIndex by remember { mutableStateOf(0) }
+    val currentBackStack by navController.currentBackStackEntryAsState()
+    val currentDestionation = currentBackStack?.destination?.route
     NavigationBar {
-        NavigationBarItem(
-            selected = selectedIndex == 0,
-            onClick = {selectedIndex == 0},
-            icon = { Icon(
-                Icons.Default.Home,
-                contentDescription = "Home"
-            ) },
-            label = {Text("Home")}
-        )
-        NavigationBarItem(
-            selected = selectedIndex == 1,
-            onClick = {selectedIndex == 1},
-            icon = {Icon(
-                Icons.Default.ShoppingCart,
-                contentDescription = "Shop"
-            )},
-            label = {Text("Shop")}
-        )
-        NavigationBarItem(
-            selected = selectedIndex == 2,
-            onClick = {selectedIndex == 2},
-            icon = {Icon(
-                Icons.Default.AddCircle,
-                contentDescription = "Add"
-            )},
-            label = {Text("Add")}
-        )
-        NavigationBarItem(
-            selected = selectedIndex == 3,
-            onClick = {selectedIndex == 3},
-            icon = {Icon(
-                Icons.Default.AccountCircle,
-                contentDescription = "Profile"
-            )},
-            label = {Text("Profile")}
-        )
+        bottomNavItems.forEach { item ->
+            NavigationBarItem(
+                selected = currentDestionation == item.route,
+                icon = {Icon(item.icon, contentDescription = item.label)},
+                onClick = {
+                    navController.navigate(item.route){
+                        popUpTo(navController.graph.startDestinationId){saveState = true}
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                label = {Text(item.label)}
+            )
+        }
 
     }
 }
